@@ -10,7 +10,7 @@ def cross_product(v1, v2):
 
 def calculate_dimensions(mesh,scale):
     if mesh is not None:
-        vertices = mesh.vertices*scale
+        vertices = mesh.vertices
         min_vals = vertices.min(axis=0)
         max_vals = vertices.max(axis=0)
         dimensions = max_vals - min_vals
@@ -58,9 +58,9 @@ def plot_vectors(vectors, masses, show_resultant, show_difference, show_cross, s
             fig.add_trace(go.Scatter3d(x=[com[0]], y=[com[1]], z=[com[2]],
                                        mode='markers', marker=dict(size=6, color='pink'), name='center of mass'))
 
-    fig.update_layout(scene=dict(xaxis=dict(nticks=4, range=[-10,10]),
-                                 yaxis=dict(nticks=4, range=[-10,10]),
-                                 zaxis=dict(nticks=4, range=[-10,10])),
+    fig.update_layout(scene=dict(xaxis=dict(nticks=4, range=[-20,20]),
+                                 yaxis=dict(nticks=4, range=[-20,20]),
+                                 zaxis=dict(nticks=4, range=[-20,20])),
                       margin=dict(l=0, r=0, b=0, t=0))
     return fig
 

@@ -8,9 +8,9 @@ import os
 def cross_product(v1, v2):
     return np.cross(v1, v2)
 
-def calculate_dimensions(mesh):
+def calculate_dimensions(mesh,scale):
     if mesh is not None:
-        vertices = mesh.vertices
+        vertices = mesh.vertices*scale
         min_vals = vertices.min(axis=0)
         max_vals = vertices.max(axis=0)
         dimensions = max_vals - min_vals
@@ -24,18 +24,18 @@ def center_of_mass(vectors, masses):
         return None
     return sum(m * v for v, m in zip(vectors, masses)) / total_mass
 
-def add_mesh_to_fig(mesh, fig, color, translation):
+def add_mesh_to_fig(mesh, fig, color, translation, scale):
     if mesh is not None:
-        vertices = mesh.vertices + translation
-        faces = mesh.faces
+        vertices = mesh.vertices*scale + translation
+        faces = mesh.faces 
         fig.add_trace(go.Mesh3d(x=vertices[:, 0], y=vertices[:, 1], z=vertices[:, 2],
                                 i=faces[:, 0], j=faces[:, 1], k=faces[:, 2],
                                 color=color, opacity=0.50))
 
 def plot_vectors(vectors, masses, show_resultant, show_difference, show_cross, show_com, mesh1=None, mesh2=None, translation1=None, translation2=None):
     fig = go.Figure()
-    add_mesh_to_fig(mesh1, fig, color='blue', translation=translation1)
-    add_mesh_to_fig(mesh2, fig, color='red', translation=translation2)
+    add_mesh_to_fig(mesh1, fig, color='blue', translation=translation1,scale=scale1)
+    add_mesh_to_fig(mesh2, fig, color='red', translation=translation2,scale=scale2)
 
     if show_resultant:
         resultant = np.add(vectors[0], vectors[1])
@@ -79,6 +79,9 @@ translation2_y = st.slider('Mesh 2 Translation Y', -10.0, 10.0, 0.0, key='mesh2_
 translation2_z = st.slider('Mesh 2 Translation Z', -10.0, 10.0, 0.0, key='mesh2_z')
 translation2 = np.array([translation2_x, translation2_y, translation2_z])
 
+scale2 = st.slider('Mesh 2 scale', 0.1, 3.0, 0.0, key='mesh1_scale')
+scale1 = st.slider('Mesh 2 scale', 0.1, 3.0, 0.0, key='mesh2_scale')
+
 # Adjustments within the file handling section
 if mesh_file1 is not None and mesh_file2 is not None:
     with tempfile.NamedTemporaryFile(delete=False, suffix=".obj") as temp_file1, tempfile.NamedTemporaryFile(delete=False, suffix=".obj") as temp_file2:
@@ -87,10 +90,10 @@ if mesh_file1 is not None and mesh_file2 is not None:
         # No need to manually close - the context manager handles this.
 
     # Ensure the file is closed by the context manager before proceeding.
-    mesh1 = trimesh.load(temp_file1.name, file_type="obj")
-    mesh2 = trimesh.load(temp_file2.name, file_type="obj")
-    dimension1 = calculate_dimensions(mesh1)
-    dimension2 = calculate_dimensions(mesh2)
+    mesh1 = trimesh.load(temp_file1.name, file_type="obj", force = "mesh")
+    mesh2 = trimesh.load(temp_file2.name, file_type="obj", force = "Mesh")
+    dimension1 = calculate_dimensions(mesh1,scale1)
+    dimension2 = calculate_dimensions(mesh2,scale2)
     # Delete temporary files after loading into trimesh
     try:
         os.unlink(temp_file1.name)
